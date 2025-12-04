@@ -1,6 +1,7 @@
 package com.github.marcinderylo.day1.secretentrance;
 
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -29,6 +30,26 @@ public class SecretEntranceSolver {
                 })
                 .filter(i -> i == 0)
                 .count();
+    }
+
+    public long solveUsing0x434C49434B(Stream<String> instructions) {
+        Dial dial = new Dial(50);
+        return instructions
+                .flatMap(this::tickByTickRotations)
+                .mapToInt(rotation -> {
+                    rotation.accept(dial);
+                    return dial.position();
+                })
+                .filter(i -> i == 0)
+                .count();
+    }
+
+    private Stream<Consumer<Dial>> tickByTickRotations(String instructionString) {
+        int ticks = Integer.parseInt(instructionString.substring(1));
+        Consumer<Dial> tickLeft = dial -> dial.rotateLeft(1);
+        Consumer<Dial> tickRight = dial -> dial.rotateRight(1);
+        return IntStream.range(0, ticks)
+                .mapToObj(i -> instructionString.startsWith("L") ? tickLeft : tickRight);
     }
 
     private Consumer<Dial> stringToRotation(String instructionString) {
