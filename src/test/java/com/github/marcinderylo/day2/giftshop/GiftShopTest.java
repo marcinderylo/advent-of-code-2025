@@ -68,29 +68,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class GiftShopTest {
     @Test
-    void twoInvalidIdsInRange_11_22() {
+    void part1_twoInvalidIdsInRange_11_22() {
         assertArrayEquals(new long[]{11, 22}, findInvalidIdsInRange(11, 22, GiftShopTest::doubledChars));
     }
 
     @Test
-    void singleInvalidIdInRange_95_115() {
+    void part1_singleInvalidIdInRange_95_115() {
         assertArrayEquals(new long[]{99}, findInvalidIdsInRange(95, 115, GiftShopTest::doubledChars));
     }
 
     @Test
-    void range_998_1012() {
+    void part1_range_998_1012() {
         assertArrayEquals(new long[]{1010}, findInvalidIdsInRange(998, 1012, GiftShopTest::doubledChars));
     }
 
     @Test
-    void sumOfInvalidIdsInExample() {
+    void part1_sumOfInvalidIdsInExample() {
         String input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
 
         assertEquals(1227775554, solutionFor(individualRanges(input), GiftShopTest::doubledChars));
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(solutionFor(inputRanges(), GiftShopTest::doubledChars));
+        System.out.println("Part 1: " + solutionFor(inputRanges(), GiftShopTest::doubledChars));
     }
 
     private static long solutionFor(Stream<Pair> ranges, LongPredicate invalidIdPredicate) {
