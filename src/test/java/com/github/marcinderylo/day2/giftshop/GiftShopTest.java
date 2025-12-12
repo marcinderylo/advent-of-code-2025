@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * <p>
  * What do you get if you add up all of the invalid IDs?
  * </p>
- *
+ * <p>
  * --- Part Two ---
  * The clerk quickly discovers that there are still invalid IDs in the ranges in your list. Maybe the young Elf was doing other silly patterns as well?
  * Now, an ID is invalid if it is made only of some sequence of digits repeated at least twice. So, 12341234 (1234 two times), 123123123 (123 three times), 1212121212 (12 five times), and 1111111 (1 seven times) are all invalid IDs.
@@ -89,8 +89,31 @@ public class GiftShopTest {
         assertEquals(1227775554, solutionFor(individualRanges(input), GiftShopTest::doubledChars));
     }
 
+    @Test
+    void part2_range_11_22() {
+        assertArrayEquals(new long[]{11, 22}, findInvalidIdsInRange(11, 22, GiftShopTest::atLeastDoubledChars));
+    }
+
+    @Test
+    void part2_range_95_115() {
+        assertArrayEquals(new long[]{99, 111}, findInvalidIdsInRange(95, 115, GiftShopTest::atLeastDoubledChars));
+    }
+
+    @Test
+    void part2_range_998_1012() {
+        assertArrayEquals(new long[]{999, 1010}, findInvalidIdsInRange(998, 1012, GiftShopTest::atLeastDoubledChars));
+    }
+
+    @Test
+    void part2_sumOfInvalidIdsInExample() {
+        String input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
+
+        assertEquals(4174379265L, solutionFor(individualRanges(input), GiftShopTest::atLeastDoubledChars));
+    }
+
     public static void main(String[] args) throws IOException {
         System.out.println("Part 1: " + solutionFor(inputRanges(), GiftShopTest::doubledChars));
+        System.out.println("Part 2: " + solutionFor(inputRanges(), GiftShopTest::atLeastDoubledChars));
     }
 
     private static long solutionFor(Stream<Pair> ranges, LongPredicate invalidIdPredicate) {
@@ -118,6 +141,28 @@ public class GiftShopTest {
         String firstHalf = idStr.substring(0, idStr.length() / 2);
         String secondHalf = idStr.substring(idStr.length() / 2);
         return firstHalf.equals(secondHalf);
+    }
+
+    private static boolean composedOfDuplicates(String str, int length) {
+        if (str.length() % length != 0) {
+            return false;
+        }
+        var prefix = str.substring(0, length);
+        for (int i = 1; i * length < str.length(); i++) {
+            var candidate = str.substring(length * i, length * (i + 1));
+            if (!candidate.equals(prefix)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean atLeastDoubledChars(long id) {
+        String idStr = Long.toString(id);
+        for (int i = idStr.length() / 2; i > 0; i--) {
+            if (composedOfDuplicates(idStr, i)) return true;
+        }
+        return false;
     }
 
     private static Stream<Pair> inputRanges() throws IOException {
