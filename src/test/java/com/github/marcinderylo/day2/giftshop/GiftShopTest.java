@@ -1,5 +1,18 @@
 package com.github.marcinderylo.day2.giftshop;
 
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * --- Day 2: Gift Shop ---
  * You get inside and take the elevator to its only other stop: the gift shop. "Thank you for visiting the North Pole!"
@@ -12,9 +25,7 @@ package com.github.marcinderylo.day2.giftshop;
  * product IDs for them, right?
  * They've even checked most of the product ID ranges already; they only have a few product ID ranges (your puzzle
  * input) that you'll need to check. For example:
- * 11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
- * 1698522-1698528,446443-446449,38593856-38593862,565653-565659,
- * 824824821-824824827,2121212118-2121212124
+ * 11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124
  * (The ID ranges are wrapped here for legibility; in your input, they appear on a single long line.)
  * The ranges are separated by commas (,); each range gives its first ID and last ID separated by a dash (-).
  * Since the young Elf was just doing silly patterns, you can find the invalid IDs by looking for any ID which is made
@@ -37,5 +48,72 @@ package com.github.marcinderylo.day2.giftshop;
  * </p>
  */
 public class GiftShopTest {
+    @Test
+    void twoInvalidIdsInRange_11_22() {
+        assertArrayEquals(new long[]{11, 22}, findInvalidIdsInRange(11, 22));
+    }
 
+    @Test
+    void singleInvalidIdInRange_95_115() {
+        assertArrayEquals(new long[]{99}, findInvalidIdsInRange(95, 115));
+    }
+
+    @Test
+    void range_998_1012() {
+        assertArrayEquals(new long[]{1010}, findInvalidIdsInRange(998, 1012));
+    }
+
+    @Test
+    void sumOfInvalidIdsInExample() {
+        String input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
+
+        assertEquals(1227775554, solutionFor(individualRanges(input)));
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(solutionFor(inputRanges()));
+    }
+
+    private static long solutionFor(Stream<Pair> ranges) {
+        return ranges
+                .flatMapToLong(GiftShopTest::findInvalidIdsInRange)
+                .sum();
+
+    }
+
+    private static long[] findInvalidIdsInRange(int min, int max) {
+        return findInvalidIdsInRange(new Pair(min, max)).toArray();
+    }
+
+    private static LongStream findInvalidIdsInRange(Pair pair) {
+        return LongStream.rangeClosed(pair.min(), pair.max())
+                .filter(GiftShopTest::isInvalidId);
+    }
+
+
+    private static boolean isInvalidId(long id) {
+        String idStr = Long.toString(id);
+        if (idStr.length() % 2 == 1) {
+            return false;
+        }
+        String firstHalf = idStr.substring(0, idStr.length() / 2);
+        String secondHalf = idStr.substring(idStr.length() / 2);
+        return firstHalf.equals(secondHalf);
+    }
+
+    private static Stream<Pair> inputRanges() throws IOException {
+        Stream<String> inputLines = Files.lines(Path.of("src/test/resources/day2/input.txt"), StandardCharsets.UTF_8);
+        return inputLines
+                .flatMap(GiftShopTest::individualRanges);
+    }
+
+    private static Stream<Pair> individualRanges(String input) {
+        return Arrays.stream(input.split(","))
+                .map(s -> s.split("-"))
+                .map(minMax -> new long[]{Long.parseLong(minMax[0]), Long.parseLong(minMax[1])})
+                .map(minMax -> new Pair(minMax[0], minMax[1]));
+    }
+
+    record Pair(long min, long max) {
+    }
 }
